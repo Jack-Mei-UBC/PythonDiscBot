@@ -4,7 +4,7 @@ import re
 import discord
 
 highscores = []
-
+flagtimes = [12,19,21,22,23]
 
 def startWeekly():
     x = datetime.today()
@@ -27,14 +27,19 @@ def addScore(userName: discord.Member, dirtyScore: str) -> None:
     temp = re.search("\d+", dirtyScore)
     score = int(dirtyScore[temp.start():temp.end()])
     addedIn = False
+    flagSlot = -1
+    for i in range(0,5):
+        if x.hour >= flagtimes[i]:
+            flagSlot += 1
     for player in highscores:
         if player[0] == userName:
-            player[x.weekday() + 1] += score
+            if (flagtimes < 0)
+            player[x.weekday()] += score
             addedIn = True
             break
     if not addedIn:
-        highscores.append([userName, 0, 0, 0, 0, 0, 0, 0])
-        highscores[-1][x.weekday() + 1] = score
+        highscores.append([userName]+[[0]*5]*7)
+        highscores[-1][x.weekday()] = score
     return
 
 
