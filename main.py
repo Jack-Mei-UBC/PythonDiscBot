@@ -65,10 +65,13 @@ class MyClient(discord.Client):
             if MyClient.check_if_it_is_me(message):
                 mute(message)
                 unMute(message)
-            if message.content.startswith(command + "flag") and (str(message.channel) == "bot-commands" or str(message.channel) == "flag-race"):
-                flag.addScore(message.author, str(message.content))
-            elif message.content.startswith(command + "highscores"):
-                await message.channel.send(embed = flag.returnScores2())
+            if (str(message.channel) == "bot-commands" or str(message.channel) == "flag-race"):
+                if message.content.startswith(command + "flag"):
+                    flag.addScore(message.author, str(message.content))
+                elif message.content.startswith(command + "highscores"):
+                    await message.channel.send(embed = flag.returnScoreBoard())
+                elif message.content.startswith(command + "edit"):
+                    flag.editScore(message.author, str(message.content), message.mentions)
         await removeMessages(message)
 
 
