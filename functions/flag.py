@@ -1,12 +1,15 @@
+import os
 from datetime import datetime, timedelta
 from threading import Timer
 import re
 import discord
-
+lifetime = []
 highscores = []
 flagtimes = [12, 19, 21, 22, 23]
 weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
-
+dir_path = os.path.dirname(os.path.realpath(__file__))
+files = "/files/"
+directory = dir_path + files
 
 def startWeekly():
     x = datetime.today()
@@ -22,6 +25,7 @@ def startWeekly():
 def weeklyCalc():
     startWeekly()
     highscores = []
+
 
 
 def addScore(userName: discord.Member, dirtyScore: str) -> None:

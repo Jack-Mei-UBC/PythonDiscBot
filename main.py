@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.INFO)
 command = "."
 owner = "219905033876013058"
 save = "data.pkl"
-token = os.getenv("DISC_TOKEN")
+token = os.getenv("DISC_TOKEN_TEST")
 with open(save, 'rb') as input:
     try:
         muteList = pickle.load(input)
