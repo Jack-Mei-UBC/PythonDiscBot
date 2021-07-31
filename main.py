@@ -1,12 +1,11 @@
 import discord
 import logging
 import pickle
-import asyncio
 import os
-import sys
+import functions.flag as flag
 
 logging.basicConfig(level=logging.INFO)
-command = "!"
+command = "."
 owner = "219905033876013058"
 save = "data.pkl"
 token = os.getenv("DISC_TOKEN")
@@ -39,7 +38,7 @@ def unMute(message: discord.Message):
             if members.id in muteList:
                 muteList.remove(members.id)
                 print(members.id)
-        if all in message.content:
+        if "all" in message.content:
             muteList.clear()
         saving()
 
@@ -54,18 +53,23 @@ async def removeMessages(message: discord.Message):
 
 class MyClient(discord.Client):
     async def on_ready(self):
+        flag.startWeekly()
         print('Logged on as {0}!'.format(self.user))
-        await client.change_presence(activity=discord.Game(name='documentation'))
+        await client.change_presence(activity=None)
 
-    def check_if_it_is_me(message: discord.Message):
+    def check_if_it_is_me(message: discord.Message) -> None:
         return message.author.id == int(owner)
 
-    async def on_message(self, message: discord.Message):
+    async def on_message(self, message: discord.Message) -> None:
         if message.content.startswith(command):
             if MyClient.check_if_it_is_me(message):
                 mute(message)
+                unMute(message)
+            if message.content.startswith(command + "flag") and (str(message.channel) == "bot-commands" or str(message.channel) == "flag-race"):
+                flag.addScore(message.author, str(message.content))
+            elif message.content.startswith(command + "highscores"):
+                await message.channel.send(embed = flag.returnScores2())
         await removeMessages(message)
-        print('Message from {0.author}: {0.content}'.format(message))
 
 
 if __name__ == '__main__':
