@@ -65,6 +65,8 @@ class MyClient(discord.Client):
             if MyClient.check_if_it_is_me(message):
                 mute(message)
                 unMute(message)
+                if message.content.startswith(command + "reset"):
+                    flag.highscores = []
             if str(message.channel) == "bot-commands" or str(message.channel) == "flag-race" or str(message.channel) == "testing":
                 if message.content.startswith(command + "flag"):
                     flag.addScore(message.author, str(message.content))
