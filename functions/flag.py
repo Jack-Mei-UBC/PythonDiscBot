@@ -33,8 +33,12 @@ def addScore(userName: discord.Member, dirtyScore: str) -> None:
             flagSlot += 1
     for player in highscores:
         if player[0] == userName:
-            if (flagtimes < 0)
-            player[x.weekday()] += score
+            if (flagtimes < 0):
+                if x.weekday() == 0:
+                    return
+                player[x.weekday()-1][-1] = score
+            else:
+                player[x.weekday()][flagtimes] = score
             addedIn = True
             break
     if not addedIn:
