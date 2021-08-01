@@ -17,9 +17,18 @@ def startWeekly():
     y = x.replace(day=x.day, hour=0, minute=0, second=0, microsecond=0) + timedelta(minutes = 1)
 
 if __name__ == '__main__':
-    import functions.saveload as saveload
+    import asyncio
+    import time
 
-    test = []
-    test.append(["p0"] + [[i for i in range(0, 5)] for x in range(0, 7)])
-    test.append(["p1"] + [[i for i in range(0, 5)] for x in range(0, 7)])
-    saveload.save(test)
+
+    async def hello():
+        print('Hello ...')
+        time.sleep(5)
+        print('... World!')
+
+
+    async def main():
+        await asyncio.gather(hello(), hello())
+
+
+    asyncio.run(main())

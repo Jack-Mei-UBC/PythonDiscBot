@@ -1,3 +1,5 @@
+import asyncio
+
 import discord
 import logging
 import pickle
@@ -53,33 +55,49 @@ async def removeMessages(message: discord.Message):
 
 class MyClient(discord.Client):
     async def on_ready(self):
-        flag.startWeekly()
+
         print('Logged on as {0}!'.format(self.user))
         flag.owner = self
         flag.highscores = flag.saveload.load(self)
+        await flag.callSundays()
         await client.change_presence(activity=None)
 
-    def check_if_it_is_me(message: discord.Message) -> None:
+    def check_if_it_is_me(self, message: discord.Message) -> None:
         return message.author.id == int(owner)
 
-    async def on_message(self, message: discord.Message) -> None:
+    async def send_results(self, content: discord.Embed) -> None:
+        guilds = client.guilds
+        for guild in guilds:
+            if guild.id == 703873995279171584:
+                unova = guild
+        channel = unova.get_channel(779105376875970561)  # 835892958124441630 779105376875970561
+        await channel.send(embed=content)
+
+    async def on_message(self, message: discord.Message):
         if message.content.startswith(command):
-            if MyClient.check_if_it_is_me(message):
+            if self.check_if_it_is_me(message):
                 mute(message)
                 unMute(message)
-                if message.content.startswith(command + "reset"):
-                    flag.highscores = []
-            if str(message.channel) == "bot-commands" or str(message.channel) == "flag-race" or str(message.channel) == "testing":
+
+            if str(message.channel) == "bot-commands" or str(message.channel) == "flag-race" or str(
+                    message.channel) == "testing":
                 if message.content.startswith(command + "flag"):
                     flag.addScore(message.author, str(message.content))
                 elif message.content.startswith(command + "leaderboards"):
-                    await message.channel.send(embed = flag.returnScoreBoard())
+                    await message.channel.send(embed=flag.returnScoreBoard())
                 elif message.content.startswith(command + "edit"):
                     flag.editScore(message.author, str(message.content), message.mentions)
                 elif message.content.startswith(command + "stats"):
-                    await message.channel.send(embed = flag.returnIndividual(message.author, message.mentions))
-                if message.author.guild_permissions.administrator and message.content.startswith(command + "save"):
-                    flag.saveload.save(flag.highscores)
+                    await message.channel.send(embed=flag.returnIndividual(message.author, message.mentions))
+                if message.author.guild_permissions.administrator:
+                    if message.content.startswith(command + "save"):
+                        flag.saveload.save(flag.highscores)
+                    if message.content.startswith(command + "load"):
+                        flag.highscores = flag.saveload.load(self)
+                    if message.content.startswith(command + "reset"):
+                        flag.highscores = []
+                    if message.content.startswith(command + "forceWeekly"):
+                        await flag.weeklyCalc()
         await removeMessages(message)
 
 
@@ -87,5 +105,5 @@ if __name__ == '__main__':
     print(muteList)
     intents = discord.Intents.default()
     intents.members = True
-    client = MyClient(intents = intents)
+    client = MyClient(intents=intents)
     client.run(token)
