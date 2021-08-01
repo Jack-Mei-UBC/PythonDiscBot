@@ -1,8 +1,9 @@
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from threading import Timer
 import re
 import discord
+import functions.saveload as saveload
 lifetime = []
 highscores = []
 flagtimes = [12, 19, 21, 22, 23]
@@ -10,9 +11,11 @@ weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 files = "/files/"
 directory = dir_path + files
+owner = None
+
 
 def startWeekly():
-    x = datetime.today()
+    x = datetime.now(timezone.utc)
     y = x.replace(day=x.day, hour=0, minute=0, second=0, microsecond=0) + timedelta(days=(7 - x.weekday()))
     delta_t = y - x
 
@@ -24,12 +27,12 @@ def startWeekly():
 
 def weeklyCalc():
     startWeekly()
-    highscores = []
-
+    saveload.save(highscores)
+    highscores.clear()
 
 
 def addScore(userName: discord.Member, dirtyScore: str) -> None:
-    x = datetime.today()
+    x = datetime.now(timezone.utc)
     temp = re.findall("\d+", dirtyScore)
     if len(temp) == 0:
         return
@@ -63,7 +66,7 @@ def addScore(userName: discord.Member, dirtyScore: str) -> None:
 def editScore(userName: discord.Member, txt: str, mentions: [discord.member]) -> None:
     if not mentions or userName.guild_permissions.administrator == False:
         return
-    x = datetime.today()
+    x = datetime.now(timezone.utc)
     nums = re.findall("\s\+?-?\d+", txt)
     raceNum = int(nums[0])
     score = int(nums[1])
@@ -81,10 +84,12 @@ def editScore(userName: discord.Member, txt: str, mentions: [discord.member]) ->
 
 # Individual
 # TODO: Add total lifetime
-def returnIndividual(userName: discord.Member) -> discord.Embed():
-    if userName is None or userName not in [x[0] for x in highscores]:
-        return
-    today = datetime.today()
+def returnIndividual(userName: discord.Member, mentions:[discord.Member]) -> discord.Embed():
+    if (userName is None or userName not in [x[0] for x in highscores]) and (len(mentions) == 0 or mentions[0] not in [x[0] for x in highscores]):
+        return discord.Embed(title="Unova Flag: " + userName.display_name, description= "No races done!")
+    if len(mentions) > 0 and mentions[0] in [x[0] for x in highscores]:
+        userName = mentions[0]
+    today = datetime.now(timezone.utc)
     mon = (today - timedelta(days=today.weekday() + 1))
     sun = (today + timedelta(days=7 - today.weekday()))
     out = discord.Embed(title="Unova Flag: " + userName.display_name,
@@ -102,7 +107,7 @@ def returnIndividual(userName: discord.Member) -> discord.Embed():
             list = player[1:]
             numRaces = sum([sum([1 if race else 0 for race in day]) for day in player[1:]])
     out.add_field(name="Races", value=str(numRaces), inline=True)
-    out.add_field(name="Point(Avg)", value=str(pointSum)+"("+str(round(pointSum/numRaces,2))+")", inline=True)
+    out.add_field(name="Points(Avg)", value=str(pointSum)+"("+str(round(pointSum/numRaces,2))+")", inline=True)
 
     for day in range(0,7):
         data = ":sunrise:" + str(list[day][0])+"\n"+":sunny:" + str(list[day][1]) + "\n" +":city_sunset:" + str(list[day][2]) + "\n" +":milky_way:" + str(list[day][3]) + "\n" + ":milky_way:" + str(list[day][4])
@@ -112,7 +117,7 @@ def returnIndividual(userName: discord.Member) -> discord.Embed():
 
 # Scoreboard
 def returnScoreBoard() -> discord.Embed():
-    today = datetime.today()
+    today = datetime.now(timezone.utc)
     mon = (today - timedelta(days=today.weekday() + 1))
     sun = (today + timedelta(days=7 - today.weekday()))
     out = discord.Embed(title="Unova Gpq Leaderboard",

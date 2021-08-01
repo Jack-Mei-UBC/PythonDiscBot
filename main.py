@@ -55,6 +55,8 @@ class MyClient(discord.Client):
     async def on_ready(self):
         flag.startWeekly()
         print('Logged on as {0}!'.format(self.user))
+        flag.owner = self
+        flag.highscores = flag.saveload.load(self)
         await client.change_presence(activity=None)
 
     def check_if_it_is_me(message: discord.Message) -> None:
@@ -75,12 +77,15 @@ class MyClient(discord.Client):
                 elif message.content.startswith(command + "edit"):
                     flag.editScore(message.author, str(message.content), message.mentions)
                 elif message.content.startswith(command + "stats"):
-                    await message.channel.send(embed = flag.returnIndividual(message.author))
-
+                    await message.channel.send(embed = flag.returnIndividual(message.author, message.mentions))
+                if message.author.guild_permissions.administrator and message.content.startswith(command + "save"):
+                    flag.saveload.save(flag.highscores)
         await removeMessages(message)
 
 
 if __name__ == '__main__':
     print(muteList)
-    client = MyClient()
+    intents = discord.Intents.default()
+    intents.members = True
+    client = MyClient(intents = intents)
     client.run(token)
