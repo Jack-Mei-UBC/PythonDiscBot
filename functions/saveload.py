@@ -2,19 +2,19 @@ import pandas as pd
 import os
 import discord
 from datetime import datetime, timedelta, timezone
-
+sep = os.sep
 
 def save(data: [[discord.Member, [int]]]):
     dir_path = os.getcwd()
     data = [[person[0].id] + person[1:] for person in data]
     frame = pd.DataFrame(data)
-    today = datetime.now(timezone.utc) - timedelta(days=1)
+    today = datetime.now(timezone.utc) - timedelta(minutes=1)
     name = ""
     mon = (today - timedelta(days=today.weekday() + 1))
     name += str(mon.year) + "_" + str(mon.month) + "_" + str(mon.day) + "_"
     sun = (today + timedelta(days=7 - today.weekday()))
     name += str(sun.year) + "_" + str(sun.month) + "_" + str(sun.day)
-    frame.to_csv(dir_path + "\\files\\" + name + ".csv",sep = ".")
+    frame.to_csv(dir_path + sep + "files" + sep + name + ".csv",sep = ".")
 
 
 def load(client : discord.Client) -> []:
@@ -28,8 +28,8 @@ def load(client : discord.Client) -> []:
     dict = {}
     for x in range(1,9):
         dict[x] = eval
-    if os.path.exists(dir_path + "\\files\\" + name + ".csv"):
-        frame = pd.read_csv(dir_path + "\\files\\" + name + ".csv", sep = ".",converters=dict)
+    if os.path.exists(dir_path + sep + "files" + sep + name + ".csv"):
+        frame = pd.read_csv(dir_path + sep + "files" + sep + name + ".csv", sep = ".",converters=dict)
     else:
         return []
     guilds = client.guilds

@@ -59,8 +59,10 @@ class MyClient(discord.Client):
         print('Logged on as {0}!'.format(self.user))
         flag.owner = self
         flag.highscores = flag.saveload.load(self)
-        await flag.callSundays()
-        await client.change_presence(activity=None)
+        await asyncio.gather(
+            flag.callSundays(),
+            flag.hourlySave()
+        )
 
     def check_if_it_is_me(self, message: discord.Message) -> None:
         return message.author.id == int(owner)
@@ -83,6 +85,7 @@ class MyClient(discord.Client):
                     message.channel) == "testing":
                 if message.content.startswith(command + "flag"):
                     flag.addScore(message.author, str(message.content))
+                    await message.channel.send("thanks for your submission")
                 elif message.content.startswith(command + "leaderboards"):
                     await message.channel.send(embed=flag.returnScoreBoard())
                 elif message.content.startswith(command + "edit"):

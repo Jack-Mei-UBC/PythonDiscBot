@@ -13,6 +13,19 @@ flagtimes = [12, 19, 21, 22, 23]
 weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
 owner = None
 
+async def hourlySave():
+    saveload.save(highscores)
+    nextHour = datetime.now(timezone.utc)+timedelta(minutes=1,hours=1)
+    nextHour = nextHour.replace(second=0,minute=0)
+    now = datetime.now(timezone.utc)
+    diff = (nextHour-now).total_seconds()
+    print(diff)
+    saveload.save(highscores)
+    await asyncio.sleep(diff)
+    task = asyncio.create_task(hourlySave())
+    print("saved")
+    await task
+
 
 async def callSundays():
     today = datetime.now(timezone.utc)
@@ -34,6 +47,7 @@ async def weeklyCalc():
     list = [(x[0], sum([sum(y) for y in x[1:]])) for x in highscores]
     list.sort(key=lambda x: x[1] + random.uniform(0, 1), reverse=True)
     brk = len(list)
+
     for a in range(0, len(list)):
         if list[a][1] < 100:
             brk = a
@@ -71,7 +85,7 @@ async def weeklyCalc():
                 break
     top_three += "```"
     out.add_field(name="Top Three", value=top_three)
-
+    await owner.send_results(returnScoreBoard())
     await owner.send_results(out)
     highscores.clear()
 
