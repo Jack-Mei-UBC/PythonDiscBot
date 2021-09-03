@@ -86,7 +86,7 @@ class MyClient(discord.Client):
                 if message.content.startswith(command + "flag"):
                     flag.addScore(message.author, str(message.content))
                     await message.channel.send("thanks for your submission")
-                elif message.content.startswith(command + "leaderboards"):
+                elif message.content.startswith(command + "leaderboards") or message.content.startswith(command + "leaderboard") or message.content.startswith(command + "highscores"):
                     await message.channel.send(embed=flag.returnScoreBoard())
                 elif message.content.startswith(command + "edit"):
                     flag.editScore(message.author, str(message.content), message.mentions)

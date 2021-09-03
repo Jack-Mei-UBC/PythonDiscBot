@@ -195,15 +195,15 @@ def returnScoreBoard() -> discord.Embed():
     list.sort(key=lambda x: x[1], reverse=True)
     out.add_field(name="Total", value=sum([sum([sum(y) for y in x[1:]]) for x in highscores]), inline=False)
 
-    topTen = "```Rank  Name                        Points\n"
+    topTen = "```Rank  Name                  Points\n"
     for i in range(0, 9):
         if i >= len(list):
             break
         if list[i][0].nick is None:
-            name = str(list[i][0].name + "#" + list[i][0].discriminator)[:26]
+            name = str(list[i][0].name + "#" + list[i][0].discriminator)[:20]
         else:
             name = str(list[i][0].nick)[:26]
-        topTen = topTen + str(i + 1) + (" " * (5 - (i + 1) // 10)) + name + (" " * (28 - len(name))) + str(
+        topTen = topTen + str(i + 1) + (" " * (5 - (i + 1) // 10)) + name + (" " * (22 - len(name))) + str(
             list[i][1]) + "\n"
     topTen += "```"
     out.add_field(name="Top ten", value=topTen)
